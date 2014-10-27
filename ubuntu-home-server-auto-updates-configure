@@ -1,0 +1,47 @@
+#!/bin/bash
+# https://help.ubuntu.com/14.04/serverguide/automatic-updates.html
+# “You can read more about apt Periodic configuration options in the /etc/cron.daily/apt script header.”
+# “The results of unattended-upgrades will be logged to /var/log/unattended-upgrades.”
+
+# N.B. The associated system scripts are run by cron at several minutes past 6am unless
+# anacron is installed.
+
+# the unattended-upgrades package is installed automatically when
+# “Install security updates automatically” is selected during Ubuntu server 14.04.1 install.
+# cat /etc/apt/apt.conf.d/50unattended-upgrades
+# // Automatically upgrade packages from these (origin:archive) pairs
+# Unattended-Upgrade::Allowed-Origins {
+#         "${distro_id}:${distro_codename}-security";
+# //      "${distro_id}:${distro_codename}-updates";
+# //      "${distro_id}:${distro_codename}-proposed";
+# //      "${distro_id}:${distro_codename}-backports";
+# };
+
+# alter /etc/apt/apt.conf.d/50unattended-upgrades
+# un-remarking //Unattended-Upgrade::Mail "root";
+# to get emails sent to “root” for problems or package upgrades
+sudo sed -i 's/\/\/Unattended-Upgrade::Mail \"root/Unattended-Upgrade::Mail "root/g' /etc/apt/apt.conf.d/50unattended-upgrades
+
+# if we only want email on errors then we can unremark a line containing the following
+# //Unattended-Upgrade::MailOnlyOnError "true";
+
+# alter /etc/apt/apt.conf.d/50unattended-upgrades
+# AUTO REBOOT if necessary after upgrades
+# For this we require the package update-notifier-common which was already installed
+# un-remarking //Unattended-Upgrade::Automatic-Reboot "false";
+# enables auto reboot if required (uses presence of /var/run/reboot-required)
+sudo sed -i 's/\/\/Unattended-Upgrade::Automatic-Reboot "false/Unattended-Upgrade::Automatic-Reboot "true/g' /etc/apt/apt.conf.d/50unattended-upgrades
+
+# alter /etc/apt/apt.conf.d/10periodic
+# Change from the default of 0 to 7 to enable autoclean every 7 days
+# the following sed command will cause apt-get autoclean to be run every 7 days:-
+# man apt-get:-
+# “...clears out the local repository of retrieved package files. … [but] only 
+# removes package files that can no longer be downloaded, and are largely useless.”
+sudo sed -i 's/AutocleanInterval \"0\"/AutocleanInterval \"7\"/g' /etc/apt/apt.conf.d/10periodic
+
+# note the following as some guides have out of date location info on these settings
+# which can result in them being set in multiple places which is confusing.
+# cat /etc/apt/apt.conf.d/20auto-upgrades 
+# APT::Periodic::Update-Package-Lists "1";
+# APT::Periodic::Unattended-Upgrade "1";
