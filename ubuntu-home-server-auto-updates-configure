@@ -45,3 +45,10 @@ sudo sed -i 's/AutocleanInterval \"0\"/AutocleanInterval \"7\"/g' /etc/apt/apt.c
 # cat /etc/apt/apt.conf.d/20auto-upgrades 
 # APT::Periodic::Update-Package-Lists "1";
 # APT::Periodic::Unattended-Upgrade "1";
+
+# alter /etc/apt/apt.conf.d/50unattended-upgrades
+# un-remarking //Unattended-Upgrade::Remove-Unused-Dependencies "false";
+# and changing it to true
+# N.B. this is equivalent to apt-get autoremove
+sudo sed -i 's/\/\/Unattended-Upgrade::Remove-Unused-Dependencies \"false/Unattended-Upgrade::Remove-Unused-Dependencies \"true/g' /etc/apt/apt.conf.d/50unattended-upgrades
+
